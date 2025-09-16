@@ -2,53 +2,122 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Estimasi Warna (Pt-Co) dari Turbidity (NTU)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 16px;
+      margin: 0;
       background-color: #fdfdfd;
+      color: #222;
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
     }
     h2 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      font-size: 1.4rem;
+      text-align: center;
     }
     p {
-      font-size: 14px;
+      font-size: 0.95rem;
       color: #555;
+      text-align: center;
+      margin-bottom: 20px;
     }
     label {
       font-weight: bold;
       display: block;
-      margin-top: 20px;
+      margin-top: 16px;
+      font-size: 0.95rem;
     }
     input, textarea {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      font-size: 16px;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       box-sizing: border-box;
+      background: #fff;
+      color: #000;
+      transition: background-color 0.3s, color 0.3s, border-color 0.3s;
     }
     textarea {
-      height: 60px;
+      height: 70px;
       resize: none;
-      background: #eaeaea;
-      color: #333;
       font-weight: bold;
     }
     .note {
-      font-size: 10px;
+      font-size: 0.75rem;
       color: red;
-      margin-top: 5px;
+      margin-top: 6px;
     }
     footer {
       margin-top: 40px;
       text-align: center;
-      font-size: 10px;
+      font-size: 0.75rem;
       color: #aaa;
+    }
+
+    /* Tombol toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: #fff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      z-index: 1000;
+      transition: background-color 0.3s;
+    }
+    .theme-toggle:hover {
+      background: #0056b3;
+    }
+
+    /* Dark mode */
+    body.dark {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    body.dark p {
+      color: #bbb;
+    }
+    body.dark input,
+    body.dark textarea {
+      background: #1e1e1e;
+      color: #f5f5f5;
+      border: 1px solid #444;
+    }
+    body.dark textarea {
+      background: #2a2a2a;
+    }
+    body.dark footer {
+      color: #666;
+    }
+
+    /* Responsif */
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      input, textarea {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
+
+  <button class="theme-toggle" id="toggleTheme">🌙 Dark</button>
 
   <h2>Estimasi Warna (Pt-Co) Berdasarkan Turbidity (NTU)</h2>
   <p>Masukkan nilai kekeruhan air dalam satuan NTU, dan sistem akan memperkirakan warna (Pt-Co) menggunakan interpolasi data.</p>
@@ -96,21 +165,32 @@
 
     const input = document.getElementById("inputAngka");
     const output = document.getElementById("outputHasil");
+    const toggleBtn = document.getElementById("toggleTheme");
 
-    window.onload = () => {
-      input.focus();
-    };
+    // Default ikuti preferensi sistem
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.body.classList.add("dark");
+      toggleBtn.textContent = "☀️ Light";
+    }
 
+    // Toggle manual
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      if (document.body.classList.contains("dark")) {
+        toggleBtn.textContent = "☀️ Light";
+      } else {
+        toggleBtn.textContent = "🌙 Dark";
+      }
+    });
+
+    // Hitung hasil input
     input.addEventListener("input", () => {
       const val = parseFloat(input.value);
-
       if (isNaN(val) || val < 0) {
         output.value = "";
       } else {
         output.value = hitungHasil(val) + " Pt-Co";
       }
-
-      input.focus();
     });
   </script>
 
