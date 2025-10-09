@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Perbandingan Level Reservoar S.Parman & KUDP</title>
+  <title>Perbandingan Level Reservoar LUAR & KUDP</title>
   <style>
     :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;transition:background 0.3s,color 0.3s}
     body{padding:28px;background:#f6f8fa;color:#0b1220;transition:background 0.4s,color 0.4s}
@@ -35,14 +35,14 @@
 <body>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <h1>Perbandingan Level Reservoar : <strong>S.Parman → KUDP</strong></h1>
+      <h1>Perbandingan Level Reservoar : <strong>Rsv Luar → KUDP</strong></h1>
       <button id="themeToggle" class="secondary">🌙 / ☀️</button>
     </div>
-    <p class="note">Masukkan <strong>Level SPARMAN</strong> (1–100). Nilai Level KUDP tampil otomatis berdasarkan data pembulatan tabel mapping.</p>
+    <p class="note">Masukkan <strong>Level Rsv Luar </strong> (1–100). Nilai Level KUDP tampil otomatis berdasarkan data pembulatan tabel mapping.</p>
 
     <div class="row">
       <div>
-        <label for="sparman">Level SPARMAN</label><br>
+        <label for="sparman">Level Rsv Luar </label><br>
         <input id="sparman" type="number" min="1" max="100" step="1" value="1">
       </div>
 
@@ -69,7 +69,7 @@
 
     <div id="tableWrap" style="display:none">
       <table>
-        <thead><tr><th>SPARMAN</th><th>KUDP (rumus 0.75×S)</th><th>KUDP PEMBULATAN (mapping)</th></tr></thead>
+        <thead><tr><th>Rsv Luar</th><th>KUDP (rumus 0.75×S)</th><th>KUDP PEMBULATAN (mapping)</th></tr></thead>
         <tbody id="mappingBody"></tbody>
       </table>
     </div>
