@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Perbandingan Level Reservoar S.Parman & KUDP</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{padding:28px;background:#f6f8fa;color:#0b1220}
+    .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 6px 20px rgba(10,20,40,.06);max-width:880px;margin:0 auto}
+    h1{font-size:20px;margin:0 0 12px}
+    .row{display:flex;gap:12px;align-items:center}
+    label{font-weight:600}
+    input[type=number]{width:100px;padding:8px;border-radius:8px;border:1px solid #d7dce6}
+    input[type=range]{flex:1}
+    .output{margin-top:18px;padding:14px;border-radius:10px;background:#f3f6fb}
+    .big{font-size:30px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    th,td{padding:6px 8px;border:1px solid #eef2f7;text-align:center}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+    button.secondary{background:#6b7280}
+    .note{margin-top:10px;color:#475569;font-size:13px}
+    footer{margin-top:18px;font-size:13px;color:#6b7280}
+    @media(max-width:640px){.row{flex-direction:column;align-items:stretch}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Perbandingan Level Reservoar : <strong>S.Parman → KUDP</strong></h1>
+    <p class="note">Masukkan <strong>Level SPARMAN</strong> (1–100). Nilai Level KUDP tampil otomatis berdasarkan data pembulatan tabel mapping.</p>
+
+    <div class="row">
+      <div>
+        <label for="sparman">Level SPARMAN</label><br>
+        <input id="sparman" type="number" min="1" max="100" step="1" value="1">
+      </div>
+
+      <div style="flex:1">
+        <label for="range">Pilih (slider)</label>
+        <input id="range" type="range" min="1" max="100" step="1" value="1">
+      </div>
+
+      <div>
+        <label>Hasil Level KUDP (Pembulatan)</label>
+        <div id="kudpRounded" class="big">1</div>
+      </div>
+    </div>
+
+    <div class="output">
+      <div><strong>Level KUDP (tidak dibulatkan):</strong> <span id="kudpRaw">0.75</span></div>
+
+
+      <div class="controls">
+        <button id="copyBtn">Salin Hasil</button>
+        <button id="showTable" class="secondary">Tampilkan/Sembunyikan Tabel Mapping</button>
+      </div>
+    </div>
+
+    <div id="tableWrap" style="display:none">
+      <table>
+        <thead><tr><th>SPARMAN</th><th>KUDP (rumus 0.75×S)</th><th>KUDP PEMBULATAN (mapping)</th></tr></thead>
+        <tbody id="mappingBody"></tbody>
+      </table>
+    </div>
+
+    <footer><center><small>PTAM Bandarmasih @2025 by AripR (214 07 525)</small></center></footer>
+  </div>
+
+  <script>
+    // Mapping KUDP PEMBULATAN sesuai data yang diberikan (index = SPARMAN)
+    const mapping = [
+      null,
+      1,2,2,3,4,4,5,6,7,8,8,9,10,10,11,12,13,14,14,15,
+      16,16,17,18,19,20,20,21,22,22,23,24,25,26,26,27,28,28,29,30,
+      31,32,32,33,34,34,35,36,37,38,38,39,40,40,41,42,43,44,44,45,
+      46,46,47,48,49,50,50,51,52,52,53,54,55,56,56,57,58,58,59,60,
+      61,62,62,63,64,64,65,66,67,68,68,69,70,70,71,72,73,74,74,75
+    ];
+
+    const sparmanInput = document.getElementById('sparman');
+    const rangeInput = document.getElementById('range');
+    const kudpRounded = document.getElementById('kudpRounded');
+    const kudpRaw = document.getElementById('kudpRaw');
+    const copyBtn = document.getElementById('copyBtn');
+    const showTable = document.getElementById('showTable');
+    const tableWrap = document.getElementById('tableWrap');
+    const mappingBody = document.getElementById('mappingBody');
+
+    function updateAll(val){
+      const s = Number(val);
+      if(!(s>=1 && s<=100)) return;
+      rangeInput.value = s;
+      sparmanInput.value = s;
+      const raw = +(s * 0.75).toFixed(2);
+      kudpRaw.textContent = raw;
+      kudpRounded.textContent = mapping[s];
+    }
+
+    sparmanInput.addEventListener('input', e=> updateAll(e.target.value));
+    rangeInput.addEventListener('input', e=> updateAll(e.target.value));
+
+    copyBtn.addEventListener('click', async ()=>{
+      const s = Number(sparmanInput.value);
+      const text = `SPARMAN ${s} → KUDP ${mapping[s]} (Raw ${ (s*0.75).toFixed(2) })`;
+      try{
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Tersalin!';
+        setTimeout(()=> copyBtn.textContent = 'Salin Hasil',1200);
+      }catch(_){
+        alert(text);
+      }
+    });
+
+    showTable.addEventListener('click', ()=>{
+      tableWrap.style.display = tableWrap.style.display === 'none' ? 'block' : 'none';
+      showTable.textContent = tableWrap.style.display === 'none' ? 'Tampilkan/Sembunyikan Tabel Mapping' : 'Sembunyikan Tabel Mapping';
+    });
+
+    // populate mapping table
+    (function fillTable(){
+      let html = '';
+      for(let i=1;i<=100;i++){
+        const raw = (i*0.75).toFixed(2);
+        html += `<tr><td>${i}</td><td>${raw}</td><td>${mapping[i]}</td></tr>`;
+      }
+      mappingBody.innerHTML = html;
+    })();
+
+    // init
+    updateAll(1);
+  </script>
+</body>
+</html>
