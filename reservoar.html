@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Perbandingan Level Reservoar LUAR & KUDP (Lebar Input 50%)</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{padding:28px;background:#f6f8fa;color:#0b1220;transition:background .4s,color .4s}
+    .dark body{background:#0b1220;color:#e5e7eb}
+    .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 6px 20px rgba(10,20,40,.06);max-width:880px;margin:0 auto;transition:background .4s,color .4s}
+    .dark .card{background:#1e293b;color:#e5e7eb}
+    h1{font-size:20px;margin:0 0 12px}
+    .row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+    label{font-weight:600;font-size:15px}
+    input[type=number]{
+      width:100%;
+      max-width:100%;
+      font-size:24px;
+      text-align:center;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #d7dce6;
+      box-sizing:border-box;
+    }
+    input[type=range]{width:100%}
+    .col{flex:1 1 48%;min-width:260px}
+    .output{margin-top:18px;padding:14px;border-radius:10px;background:#f3f6fb}
+    .dark .output{background:#334155}
+    .big{font-size:26px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    th,td{padding:6px 8px;border:1px solid #eef2f7;text-align:center}
+    .dark th,.dark td{border-color:#475569}
+    button{padding:8px 12px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer;transition:background .3s,transform .1s}
+    button:hover{transform:scale(1.03)}
+    button.secondary{background:#6b7280}
+    .note{margin-top:10px;color:#475569;font-size:13px}
+    .dark .note{color:#94a3b8}
+    footer{margin-top:18px;font-size:13px;color:#6b7280;text-align:center}
+    .dark footer{color:#94a3b8}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>Perbandingan Level Reservoar <strong>Rsv Luar ⇄ KUDP</strong></h1>
+      <button id="themeToggle" class="secondary">🌙 / ☀️</button>
+    </div>
+    <p class="note">
+      Masukkan atau geser slider salah satu nilai: <strong>Level Rsv Luar</strong> atau <strong>Level KUDP (Pembulatan)</strong>. Nilai lainnya akan otomatis terisi.
+    </p>
+
+    <div class="row">
+      <div class="col">
+        <label for="rsvInput">Level Rsv Luar</label><br>
+        <input id="rsvInput" type="number" min="1" max="100" step="1" placeholder="1–100"><br>
+        <input id="rsvSlider" type="range" min="1" max="100" step="1" value="1">
+      </div>
+
+      <div class="col">
+        <label for="kudpInput">Level KUDP (Pembulatan)</label><br>
+        <input id="kudpInput" type="number" min="1" max="75" step="1" placeholder="1–75"><br>
+        <input id="kudpSlider" type="range" min="1" max="75" step="1" value="1">
+      </div>
+    </div>
+
+    <div class="output">
+      <div><strong>Level KUDP (tidak dibulatkan):</strong> <span id="kudpRaw">–</span></div>
+      <div id="errorMsg" style="color:#dc2626;margin-top:8px;display:none">Nilai tidak valid.</div>
+      <div id="interpMsg" style="color:#2563eb;margin-top:8px;display:none;font-size:13px"></div>
+
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button id="copyBtn">Salin Hasil</button>
+        <button id="showTable" class="secondary">Tampilkan/Sembunyikan Tabel Mapping</button>
+      </div>
+    </div>
+
+    <div id="tableWrap" style="display:none">
+      <table>
+        <thead><tr><th>Rsv Luar</th><th>KUDP (0.75×S)</th><th>KUDP Pembulatan</th></tr></thead>
+        <tbody id="mappingBody"></tbody>
+      </table>
+    </div>
+
+    <footer><small>PTAM Bandarmasih @2025 by AripR (214 07 525)</small></footer>
+  </div>
+
+  <script>
+    const mapping=[null,1,2,2,3,4,4,5,6,7,8,8,9,10,10,11,12,13,14,14,15,16,16,17,18,19,20,20,21,22,22,23,24,25,26,26,27,28,28,29,30,31,32,32,33,34,34,35,36,37,38,38,39,40,40,41,42,43,44,44,45,46,46,47,48,49,50,50,51,52,52,53,54,55,56,56,57,58,58,59,60,61,62,62,63,64,64,65,66,67,68,68,69,70,70,71,72,73,74,74,75];
+
+    const rsvInput=document.getElementById('rsvInput');
+    const rsvSlider=document.getElementById('rsvSlider');
+    const kudpInput=document.getElementById('kudpInput');
+    const kudpSlider=document.getElementById('kudpSlider');
+    const kudpRaw=document.getElementById('kudpRaw');
+    const errorMsg=document.getElementById('errorMsg');
+    const interpMsg=document.getElementById('interpMsg');
+    const copyBtn=document.getElementById('copyBtn');
+    const showTable=document.getElementById('showTable');
+    const tableWrap=document.getElementById('tableWrap');
+    const mappingBody=document.getElementById('mappingBody');
+    const themeToggle=document.getElementById('themeToggle');
+
+    function applyTheme(mode){document.documentElement.classList.toggle('dark',mode==='dark');}
+    function detectAutoTheme(){const h=new Date().getHours();return (h>=18||h<6)?'dark':'light';}
+    applyTheme(detectAutoTheme());
+    themeToggle.addEventListener('click',()=>{document.documentElement.classList.toggle('dark');});
+
+    function showError(s){errorMsg.style.display=s?'block':'none';if(s){kudpRaw.textContent='–';interpMsg.style.display='none';}}
+    function showInterp(m){interpMsg.style.display='block';interpMsg.textContent=m;}
+
+    function fromRsv(v){
+      const s=Number(v);
+      if(!(s>=1&&s<=100)){showError(true);return;}
+      showError(false);
+      const raw=(s*0.75).toFixed(2);
+      const rounded=mapping[s];
+      kudpInput.value=rounded;
+      kudpSlider.value=rounded;
+      kudpRaw.textContent=raw;
+      interpMsg.style.display='none';
+      rsvInput.value=s;
+      rsvSlider.value=s;
+    }
+
+    function fromKudp(v){
+      const k=Number(v);
+      if(!(k>=1&&k<=75)){showError(true);return;}
+      showError(false);
+      let idx=mapping.findIndex(m=>m===k);
+      if(idx===-1){
+        let closest=1,diff=Infinity;
+        for(let i=1;i<=100;i++){let d=Math.abs(mapping[i]-k);if(d<diff){diff=d;closest=i;}}
+        idx=closest;
+        showInterp(`Nilai ${k} tidak ada di tabel, RSV terdekat: ${idx} (KUDP ≈ ${mapping[idx]})`);
+      } else interpMsg.style.display='none';
+      rsvInput.value=idx;
+      rsvSlider.value=idx;
+      kudpRaw.textContent=(idx*0.75).toFixed(2);
+      kudpInput.value=k;
+      kudpSlider.value=k;
+    }
+
+    rsvInput.addEventListener('input',e=>fromRsv(e.target.value));
+    rsvSlider.addEventListener('input',e=>fromRsv(e.target.value));
+    kudpInput.addEventListener('input',e=>fromKudp(e.target.value));
+    kudpSlider.addEventListener('input',e=>fromKudp(e.target.value));
+
+    copyBtn.addEventListener('click',async()=>{
+      const r=rsvInput.value||'–';
+      const k=kudpInput.value||'–';
+      const raw=kudpRaw.textContent;
+      const text=`Rsv Luar ${r} ⇄ KUDP ${k} (Raw ${raw})`;
+      try{await navigator.clipboard.writeText(text);copyBtn.textContent='Tersalin!';setTimeout(()=>copyBtn.textContent='Salin Hasil',1200);}catch(_){alert(text);}
+    });
+
+    showTable.addEventListener('click',()=>{tableWrap.style.display=tableWrap.style.display==='none'?'block':'none';});
+
+    (function fillTable(){
+      let html='';
+      for(let i=1;i<=100;i++){html+=`<tr><td>${i}</td><td>${(i*0.75).toFixed(2)}</td><td>${mapping[i]}</td></tr>`;}
+      mappingBody.innerHTML=html;
+    })();
+  </script>
+</body>
+</html>
