@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Perbandingan Level Reservoar LUAR & KUDP (Lebar Input 50%)</title>
+  <title>Perbandingan Level Reservoar LUAR & KUDP</title>
   <style>
     :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
     body{padding:28px;background:#f6f8fa;color:#0b1220;transition:background .4s,color .4s}
@@ -16,18 +16,24 @@
     input[type=number]{
       width:100%;
       max-width:100%;
-      font-size:24px;
+      font-size:26px;
       text-align:center;
       padding:12px;
       border-radius:10px;
       border:1px solid #d7dce6;
       box-sizing:border-box;
+      transition:all .2s ease;
     }
-    input[type=range]{width:100%}
+    input[type=number]:focus{
+      border-color:#2563eb;
+      box-shadow:0 0 0 3px rgba(37,99,235,0.2);
+      outline:none;
+    }
+    input[type=range]{width:100%;accent-color:#2563eb;cursor:pointer}
     .col{flex:1 1 48%;min-width:260px}
-    .output{margin-top:18px;padding:14px;border-radius:10px;background:#f3f6fb}
+    .output{margin-top:18px;padding:14px;border-radius:10px;background:#f3f6fb;transition:background .4s}
     .dark .output{background:#334155}
-    .big{font-size:26px;font-weight:700}
+    .big{font-size:26px;font-weight:700;transition:color .3s,transform .2s}
     table{width:100%;border-collapse:collapse;margin-top:18px}
     th,td{padding:6px 8px;border:1px solid #eef2f7;text-align:center}
     .dark th,.dark td{border-color:#475569}
@@ -38,6 +44,7 @@
     .dark .note{color:#94a3b8}
     footer{margin-top:18px;font-size:13px;color:#6b7280;text-align:center}
     .dark footer{color:#94a3b8}
+    @media(max-width:640px){.col{flex:1 1 100%}}
   </style>
 </head>
 <body>
@@ -65,7 +72,7 @@
     </div>
 
     <div class="output">
-      <div><strong>Level KUDP (tidak dibulatkan):</strong> <span id="kudpRaw">–</span></div>
+      <div><strong>Level KUDP (tidak dibulatkan):</strong> <span id="kudpRaw" class="big">–</span></div>
       <div id="errorMsg" style="color:#dc2626;margin-top:8px;display:none">Nilai tidak valid.</div>
       <div id="interpMsg" style="color:#2563eb;margin-top:8px;display:none;font-size:13px"></div>
 
@@ -109,6 +116,8 @@
     function showError(s){errorMsg.style.display=s?'block':'none';if(s){kudpRaw.textContent='–';interpMsg.style.display='none';}}
     function showInterp(m){interpMsg.style.display='block';interpMsg.textContent=m;}
 
+    function animateChange(el){el.style.transform='scale(1.1)';setTimeout(()=>el.style.transform='scale(1)',200);}
+
     function fromRsv(v){
       const s=Number(v);
       if(!(s>=1&&s<=100)){showError(true);return;}
@@ -118,6 +127,7 @@
       kudpInput.value=rounded;
       kudpSlider.value=rounded;
       kudpRaw.textContent=raw;
+      animateChange(kudpRaw);
       interpMsg.style.display='none';
       rsvInput.value=s;
       rsvSlider.value=s;
@@ -137,6 +147,7 @@
       rsvInput.value=idx;
       rsvSlider.value=idx;
       kudpRaw.textContent=(idx*0.75).toFixed(2);
+      animateChange(kudpRaw);
       kudpInput.value=k;
       kudpSlider.value=k;
     }
