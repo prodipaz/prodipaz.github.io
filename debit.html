@@ -5,94 +5,140 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kalkulator Debit per Jam</title>
 <style>
+  /* ======== SOFT DARK MODE GLOBAL ======== */
   body {
     font-family: "Segoe UI", Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background: #f2f4f7;
+    background: #2b2f3a;         /* lembut, tidak terlalu gelap */
+    color: #e4e6eb;               /* abu muda lembut */
+    transition: background 0.3s, color 0.3s;
   }
+
   h2 {
     text-align: center;
     margin-bottom: 20px;
+    color: #f1f1f1;
   }
+
+  /* ======== TABEL ======== */
   table {
     width: 100%;
     max-width: 600px;
     margin: 10px auto;
     border-collapse: collapse;
-    margin-top: 10px;
+    background: #353a46;          /* abu gelap lembut */
+    border-radius: 10px;
+    overflow: hidden;
   }
+
   th {
-    background: #007bff;
-    color: white;
+    background: #4a5060;         /* biru-abu gelap lembut */
+    color: #fff;
     padding: 10px;
     font-size: 16px;
   }
+
   td {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
-    background: white;
+    border-bottom: 1px solid #4e5260;
+    background: #3a3f4c;         /* soft-dark */
     font-size: 15px;
+    color: #e8e8e8;
   }
+
   tr:nth-child(even) td {
-    background: #f8f9fc;
+    background: #343946;         /* sedikit lebih gelap */
   }
+
+  /* ======== INPUT ======== */
   input[type="number"] {
     width: 80px;
     padding: 6px;
-    border: 1px solid #aaa;
+    background: #2f3340;
+    border: 1px solid #6d7385;
     border-radius: 6px;
+    color: #fff;
     font-size: 15px;
   }
-  input.error {
-    border: 2px solid red;
-    background: #ffe5e5;
+
+  input[type="number"]:focus {
+    outline: 2px solid #8aa8ff;
   }
 
-.catatan {
-  max-width: 700px;     /* BATAS LEBAR */
-  margin: 20px auto;    /* AGAR TENGAH */
-  background: #ffffff;
-  padding: 15px 20px;
-  border-radius: 10px;
-  line-height: 1.5;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+  input.error {
+    border: 2px solid #ff4d4d;
+    background: #442222;
+  }
 
-/* Dark mode menyesuaikan */
-body.dark .catatan {
-  background: #2a2a2a;
-  box-shadow: 0 2px 6px rgba(255,255,255,0.05);
-}
-
-/* Judul kecil pada catatan */
-.catatan h4 {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 17px;
-}
-
-#totalDebit {
+  /* ======== TOTAL DEBIT ======== */
+  #totalDebit {
     margin-top: 20px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
-    background: #e8f0ff;
+    background: #404656;
     padding: 12px;
     border-radius: 8px;
-    color: #0043a8;
+    color: #cdd7ff;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-@media(max-width:600px){
+  /* ======== CATATAN BOX ======== */
   .catatan {
-    max-width: 95%;
-    padding: 12px 15px;
+    max-width: 700px;
+    margin: 20px auto;
+    background: #353a46;
+    padding: 15px 20px;
+    border-radius: 10px;
+    line-height: 1.6;
+    color: #e6e6e6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: 0.3s;
   }
 
-@media(max-width:600px){ table, th, td{font-size:14px;} input[type="number"]{width:70px;} }
-  body.dark{background:#1e1e1e;color:#eee;} body.dark th{background:#333;} body.dark td{background:#2a2a2a;} body.dark #totalDebit{background:#333;color:#fff;}
-.btn{padding:10px 18px;border:none;border-radius:8px;background:#007bff;color:#fff;font-size:15px;cursor:pointer;margin:5px;transition:.2s;} .btn:hover{background:#005fcc;} body.dark .btn{background:#444;color:#fff;} body.dark .btn:hover{background:#666;} 
+  .catatan h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 17px;
+    color: #ffffff;
+  }
+
+  /* ======== LIST & LINK ======== */
+  a {
+    color: #8ab4ff;
+  }
+
+  a:hover {
+    color: #c3d7ff;
+  }
+
+  /* ======== MOBILE RESPONSIVE ======== */
+  @media (max-width:600px){
+    table, th, td { font-size: 14px; }
+    input[type="number"] { width: 70px; }
+    .catatan { max-width: 95%; padding: 12px 15px; }
+  }
+
+  /* ===== BUTTON (Jika diperlukan di atas kode Anda) ===== */
+  .btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #4a5060;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 5px;
+    transition: 0.2s;
+  }
+  .btn:hover {
+    background: #5d6478;
+  }
 </style>
+
 </head>
 
 <body>
