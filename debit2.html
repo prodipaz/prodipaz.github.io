@@ -95,6 +95,36 @@
     font-size: 17px;
     color: #ffffff;
   }
+
+/* ===== SPOILER / TOGGLE CATATAN ===== */
+.spoiler-btn {
+  width: 100%;              /* mengikuti max-width container */
+  max-width: 600px;         /* sama seperti totalDebit */
+  background: #4a5060;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  margin: 20px auto;        /* center otomatis */
+  border: none;
+  display: block;
+  transition: background 0.2s;
+}
+.spoiler-btn:hover {
+  background: #5a6073;
+}
+
+.spoiler-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.spoiler-content.open {
+  max-height: 2000px; /* besar supaya muat seluruh konten */
+}
   
 
 /* ====== TABLE DI DALAM .catatan ====== */
@@ -226,6 +256,9 @@
 
 <p id="totalDebit">Total: 3107</p>
 
+<button class="spoiler-btn" onclick="toggleCatatan()">📌 Tampilkan / Sembunyikan Catatan</button>
+
+<div id="catatanBox" class="spoiler-content">
 <div class="catatan">
 <h4>Catatan :</h4> 
 <ol>
@@ -301,10 +334,16 @@ Maka Nilai maksimal pada pompa dan motor adalah sebagai berikut :
 </ul>
 
 
-</div>
-
+</div> <!-- penutup .catatan -->
+</div> <!-- penutup spoiler-content -->
   
 <script>
+
+function toggleCatatan() {
+  const box = document.getElementById("catatanBox");
+  box.classList.toggle("open");
+}
+
 const baseFreq = 50;
 const defaultBase = [857, 250, 500, 500, 1000];
 
