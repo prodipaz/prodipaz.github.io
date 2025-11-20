@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kalkulator Debit per Jam</title>
+
+<style>
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #2b2f3a;
+    color: #e4e6eb;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #f1f1f1;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    margin: auto;
+    max-width: 900px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #353a46;
+    border-radius: 10px;
+    overflow: hidden;
+    table-layout: fixed;
+  }
+
+  th, td {
+    padding: 10px;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  th {
+    background: #4a5060;
+    color: #fff;
+  }
+
+  td {
+    background: #3a3f4c;
+    color: #e8e8e8;
+    border-bottom: 1px solid #4e5260;
+  }
+
+  tr:nth-child(even) td {
+    background: #343946;
+  }
+
+  th:nth-child(1), td:nth-child(1) { width: 10%; }
+  th:nth-child(2), td:nth-child(2) { width: 25%; }
+  th:nth-child(3), td:nth-child(3) { width: 25%; }
+  th:nth-child(4), td:nth-child(4) { width: 25%; }
+
+  input[type="number"] {
+    width: 90%;
+    padding: 6px;
+    background: #2f3340;
+    border: 1px solid #6d7385;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 15px;
+  }
+
+  input.error {
+    border: 2px solid #ff4d4d;
+    background: #442222;
+  }
+
+  #totalDebit {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    background: #404656;
+    padding: 12px;
+    border-radius: 8px;
+    color: #cdd7ff;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: 0.3s;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #4a5060;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 8px auto;
+    display: block;
+    transition: 0.2s;
+  }
+  .btn:hover {
+    background: #5d6478;
+  }
+
+  @media (max-width: 600px) {
+    th, td {
+      font-size: 13px;
+      padding: 8px;
+    }
+    input[type="number"] {
+      font-size: 14px;
+      padding: 5px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<h2>Kalkulator Debit per Jam</h2>
+
+<div class="table-wrapper">
+<table>
+  <tr>
+    <th>Motor</th>
+    <th>Masukan Frekuensi (Hz)</th>
+    <th>Debit Awal (m³/h)</th>
+    <th>Debit Baru</th>
+  </tr>
+
+  <tr>
+    <td>1</td>
+    <td><input type="number" id="f1" value="50" oninput="hitung()"></td>
+    <td><input type="number" id="b1" value="857" oninput="hitung()"></td>
+    <td id="d1">857</td>
+  </tr>
+
+  <tr>
+    <td>2</td>
+    <td><input type="number" id="f2" value="50" oninput="hitung()"></td>
+    <td><input type="number" id="b2" value="250" oninput="hitung()"></td>
+    <td id="d2">250</td>
+  </tr>
+
+  <tr>
+    <td>3</td>
+    <td><input type="number" id="f3" value="50" oninput="hitung()"></td>
+    <td><input type="number" id="b3" value="500" oninput="hitung()"></td>
+    <td id="d3">500</td>
+  </tr>
+
+  <tr>
+    <td>4</td>
+    <td><input type="number" id="f4" value="50" oninput="hitung()"></td>
+    <td><input type="number" id="b4" value="500" oninput="hitung()"></td>
+    <td id="d4">500</td>
+  </tr>
+
+  <tr>
+    <td>5</td>
+    <td><input type="number" id="f5" value="50" oninput="hitung()"></td>
+    <td><input type="number" id="b5" value="1000" oninput="hitung()"></td>
+    <td id="d5">1000</td>
+  </tr>
+</table>
+</div>
+
+<button class="btn" onclick="resetAll()">Reset Semua Nilai</button>
+
+<p id="totalDebit">Total: 3107</p>
+
+
+<script>
+const baseFreq = 50;
+const defaultBase = [857, 250, 500, 500, 1000];
+
+/* --- Animasi perubahan angka --- */
+function animateValue(element, start, end, duration = 300) {
+  const startTime = performance.now();
+
+  function update(currentTime) {
+    const progress = Math.min((currentTime - startTime) / duration, 1);
+    const value = start + (end - start) * progress;
+    element.innerText = value.toFixed(2);
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  requestAnimationFrame(update);
+}
+
+function hitung() {
+  let totalBaru = 0;
+
+  for (let i = 1; i <= 5; i++) {
+    let fEl = document.getElementById("f" + i);
+    let bEl = document.getElementById("b" + i);
+
+    let f = parseFloat(fEl.value);
+    let b = parseFloat(bEl.value);
+
+    /* --- Validasi batas max frekuensi --- */
+    if (f > 50) {
+      f = 50;
+      fEl.value = 50;
+      fEl.classList.add("error");
+      fEl.title = "Maksimal 50 Hz";
+    } else {
+      fEl.classList.remove("error");
+      fEl.title = "";
+    }
+
+    if (!fEl.value.trim()) { fEl.classList.add("error"); f = 0; }
+    if (!bEl.value.trim()) { bEl.classList.add("error"); b = 0; }
+
+    let debitBaru = b * (f / baseFreq);
+    totalBaru += debitBaru;
+
+    let dEl = document.getElementById("d" + i);
+    let oldVal = parseFloat(dEl.innerText);
+    animateValue(dEl, oldVal, debitBaru);
+  }
+
+  let totalEl = document.getElementById("totalDebit");
+  let oldTotal = parseFloat(totalEl.innerText.replace("Total: ", ""));
+  animateValue(totalEl, oldTotal, totalBaru, 400);
+
+  totalEl.innerText = "Total: " + totalBaru.toFixed(2);
+}
+
+function resetAll() {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("f" + i).value = 50;
+    document.getElementById("b" + i).value = defaultBase[i - 1];
+  }
+  hitung();
+}
+</script>
+
+</body>
+</html>
