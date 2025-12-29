@@ -61,6 +61,59 @@
       color: #aaa;
     }
 
+    /* ===== Overlay ===== */
+#popupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* ===== Popup Box ===== */
+#popupBox {
+  background: #fff;
+  padding: 24px 20px;
+  max-width: 360px;
+  width: 92%;
+  border-radius: 12px;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+
+#popupBox h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+#popupBox p {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+/* ===== Button ===== */
+#popupOk {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+#popupOk.active {
+  cursor: pointer;
+  opacity: 1;
+}
+    
+
     /* Tombol toggle */
     .theme-toggle {
       position: fixed;
@@ -100,9 +153,13 @@
     body.dark footer {
       color: #666;
     }
-
+    
     /* Responsif */
     @media (max-width: 480px) {
+      
+      #popupBox { padding: 20px 16px; }
+      #popupBox h2 { font-size: 18px; }
+      
       body {
         padding: 12px;
       }
@@ -118,6 +175,33 @@
 </head>
 <body>
 
+  <!-- POPUP -->
+<div id="popupOverlay" style="display:none">
+  <div id="popupBox">
+    <h2>Gunakan Dengan BIJAK</h2>
+    <p>Tombol akan aktif dalam <span id="countdown">5</span> detik</p>
+    <button id="popupOk" disabled>OK</button>
+  </div>
+</div>
+  
+<!-- DEV / TEST BUTTON -->
+<button id="clearCookieBtn" style="
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.7;
+  z-index: 10000;
+">
+  Clear Cookie (DEV)
+</button>
+  
   <button class="theme-toggle" id="toggleTheme">🌙 Dark</button>
 
   <h2>Estimasi Warna (Pt-Co) Berdasarkan Turbidity (NTU)</h2>
@@ -195,8 +279,108 @@
     });
   </script>
 
+
+
+  <script>
+/* ================================
+   CONFIG
+================================ */
+const POPUP_DELAY_SECONDS = 5;
+const POPUP_COOKIE_HOURS = 3;
+
+/* Multi-offer rotation */
+const OFFERS = [
+  "https://affiliate-network.com/click?offer=111",
+  "https://affiliate-network.com/click?offer=222",
+  "https://affiliate-network.com/click?offer=333"
+];
+
+/* ================================
+   COOKIE HELPERS
+================================ */
+function setCookie(name, value, hours) {
+  const d = new Date();
+  d.setTime(d.getTime() + hours * 60 * 60 * 1000);
+  document.cookie = `${name}=${value}; expires=${d.toUTCString()}; path=/`;
+}
+
+function getCookie(name) {
+  return document.cookie.split("; ").find(row => row.startsWith(name + "="));
+}
+
+/* ================================
+   OFFER ROTATION
+================================ */
+function getRotatedOffer() {
+  let index = localStorage.getItem("offer_index");
+  index = index ? parseInt(index) : 0;
+
+  const offer = OFFERS[index % OFFERS.length];
+  localStorage.setItem("offer_index", index + 1);
+
+  return offer;
+}
+
+/* ================================
+   POPUP LOGIC
+================================ */
+if (!getCookie("popup_seen")) {
+  const overlay = document.getElementById("popupOverlay");
+  const btn = document.getElementById("popupOk");
+  const countdownEl = document.getElementById("countdown");
+
+  overlay.style.display = "flex";
+
+  let timeLeft = POPUP_DELAY_SECONDS;
+  const timer = setInterval(() => {
+    timeLeft--;
+    countdownEl.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.classList.add("active");
+      btn.textContent = "OK";
+    }
+  }, 1000);
+
+  btn.addEventListener("click", () => {
+    const affiliateUrl = getRotatedOffer();
+    const mainPageUrl = location.href;
+
+    // set cookie 3 jam
+    setCookie("popup_seen", "1", POPUP_COOKIE_HOURS);
+
+    // buka main page di tab baru
+    window.open(mainPageUrl, "_blank", "noopener,noreferrer");
+
+    // redirect tab saat ini ke affiliate
+    location.href = affiliateUrl;
+  });
+}
+</script>
+
+<script>
+/* ================================
+   CLEAR COOKIE (DEV MODE)
+================================ */
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+document.getElementById("clearCookieBtn").addEventListener("click", () => {
+  deleteCookie("popup_seen");
+  localStorage.removeItem("offer_index");
+
+  alert("Cookie popup & offer rotation berhasil dihapus.\nReload halaman untuk testing ulang.");
+});
+</script>
+
+  
+
 </body>
 </html>
+
 
 
 
